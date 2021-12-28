@@ -1,10 +1,11 @@
 package main
 
 import (
-	"ataYemek/database"
-	"ataYemek/models"
 	"context"
 	"time"
+
+	"github.com/0xberkay/ataYemek/database"
+	"github.com/0xberkay/ataYemek/models"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"

@@ -1,4 +1,4 @@
-module ataYemek
+module github.com/0xberkay/ataYemek
 
 go 1.17
 

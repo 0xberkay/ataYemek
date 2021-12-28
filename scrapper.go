@@ -1,14 +1,15 @@
 package main
 
 import (
-	"ataYemek/database"
-	"ataYemek/models"
 	"context"
 	"fmt"
 	"log"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/0xberkay/ataYemek/database"
+	"github.com/0xberkay/ataYemek/models"
 
 	"github.com/gocolly/colly"
 	"go.mongodb.org/mongo-driver/bson"
