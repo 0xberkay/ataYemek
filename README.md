@@ -1,11 +1,11 @@
 # Atauni Yemek listesi
-Atatürk üniversitesi Sağlık Kültür Ve Spor Daire Başkanlığına bağlı yemekhanelerin yemek listesi apisi
+Atatürk üniversitesi Sağlık Kültür Ve Spor Daire Başkanlığına bağlı yemekhanelerin yemek listesi apisi <br>
 
 # Api
 
-app.Get("berkay.one/api/bugun", bugunkiYemekler) //Bugunki Yemekleri döndürür
-app.Get("berkay.one/api/yarin", yarinkiYemekler) //Yarınki Yemekleri döndürür
-app.Get("berkay.one/api/tum", tumYemekler)       //Tüm Yemekleri döndürür
+app.Get("berkay.one/api/bugun", bugunkiYemekler) //Bugunki Yemekleri döndürür <br>
+app.Get("berkay.one/api/yarin", yarinkiYemekler) //Yarınki Yemekleri döndürür <br>
+app.Get("berkay.one/api/tum", tumYemekler)       //Tüm Yemekleri döndürür <br>
 
 
 # Scrapper.go
