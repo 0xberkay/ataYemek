@@ -19,7 +19,5 @@ func Connect() *mongo.Client {
 	if err != nil {
 		log.Fatal("Hata : " + err.Error())
 	}
-	// ping
-
 	return client
 }
