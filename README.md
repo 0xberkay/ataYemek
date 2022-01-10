@@ -3,9 +3,9 @@ Atatürk üniversitesi Sağlık Kültür Ve Spor Daire Başkanlığına bağlı 
 
 # Api
 
-app.Get("berkay.one/api/bugun", bugunkiYemekler) //Bugunki Yemekleri döndürür <br>
-app.Get("berkay.one/api/yarin", yarinkiYemekler) //Yarınki Yemekleri döndürür <br>
-app.Get("berkay.one/api/tum", tumYemekler)       //Tüm Yemekleri döndürür <br>
+app.Get("/api/bugun", bugunkiYemekler) //Bugunki Yemekleri döndürür <br>
+app.Get("/api/yarin", yarinkiYemekler) //Yarınki Yemekleri döndürür <br>
+app.Get("/api/tum", tumYemekler)       //Tüm Yemekleri döndürür <br>
 
 
 # Scrapper.go
