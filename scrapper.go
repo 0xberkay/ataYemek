@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"regexp"
 	"strings"
 	"time"
@@ -37,94 +36,79 @@ func getYemekListesi() {
 
 	})
 
-	c.OnRequest(func(r *colly.Request) {
-
-	})
-
 	c.Visit("https://birimler.atauni.edu.tr/saglik-kultur-ve-spor-daire-baskanligi/")
 
 	cnnt := database.Connect()
 	clt := cnnt.Database("menuListe").Collection("menu")
 
 	menuDB := models.MenuScrap{}
+	menuData := models.MenuScrap{}
+	yemek := models.Yemek{}
 
-	anaMenu := models.Menu{}
-	konukEviMenu := models.Menu{}
-	menuData := []string{}
-	cout := 0
+	d := colly.NewCollector()
 
-	//Reversing slice
-	for i, j := 0, len(tarihData)-1; i < j; i, j = i+1, j-1 {
-		tarihData[i], tarihData[j] = tarihData[j], tarihData[i]
-	}
+	for i := 0; i < len(menurl); i++ {
 
-	// yemek urlsinde yemekleri çeken döngü
-	c.OnHTML("tbody", func(e *colly.HTMLElement) {
-		e.ForEach("tr", func(_ int, el *colly.HTMLElement) {
-			el.ForEach("td", func(_ int, el *colly.HTMLElement) {
+		cout := 0
+		d.OnHTML("table", func(e *colly.HTMLElement) {
 
-				if len(el.Text) == 0 || el.Text == "Gram" || el.Text == "KONUK EVİ 2 MENÜ" || el.Text == "ANA MENÜ" {
-					return
-				} else {
-					if len(menuData) < 17 {
+			if cout == 0 {
 
-						menuData = append(menuData, el.Text)
-						if len(menuData) == 16 { // eğer bir menu için 16 tane yemek varsa
-							clt.FindOne(context.TODO(), bson.M{"tarih": tarihData[cout]}).Decode(&menuDB) // db'de bu tarihte kayıtlı bir menu varmı
+				e.ForEach("tr", func(_ int, e *colly.HTMLElement) {
 
-							if len(menuDB.Tarih) == 0 { // eğer yoksa
-								// menu yerlere göre ayırıyoruz
-								for k, menu := range menuData {
+					e.ForEach("td", func(_ int, el *colly.HTMLElement) {
 
-									if k%4 == 1 {
-										anaMenu.Gram = append(anaMenu.Gram, menu)
-									} else if k%4 == 2 {
-										anaMenu.Name = append(anaMenu.Name, menu)
-									} else if k%4 == 3 {
-										konukEviMenu.Gram = append(konukEviMenu.Gram, menu)
-									} else if k%4 == 0 {
-										konukEviMenu.Name = append(konukEviMenu.Name, menu)
-									}
+						if el.Text != "ANA MENÜ" && el.Text != "Gram" {
 
-								}
-								menuData = []string{}
-								// database'e kaydetme
-								mainData := models.MenuScrap{Tarih: tarihData[cout], Menuler: [2]models.Menu{anaMenu, konukEviMenu}}
-								_, err := clt.InsertOne(context.TODO(), mainData)
-								if err != nil {
-									log.Fatal("Hata : " + err.Error())
-								}
-								menuDB = models.MenuScrap{}
+							if el.Attr("colspan") != "" {
+								yemek.Name = el.Text
 							} else {
-								fmt.Println("\nbu tarih daha önce kaydedilmiş")
+								yemek.Gram = el.Text
+								menuDB.Menuler = append(menuDB.Menuler, yemek)
+								yemek = models.Yemek{}
 
 							}
-							cout++
 
 						}
+
+					})
+				})
+
+				menuDB.Tarih = tarihData[i]
+				clt.FindOne(context.TODO(), bson.M{"tarih": menuDB.Tarih}).Decode(&menuData)
+
+				if menuData.Tarih != "" {
+					fmt.Println("Tarih daha önce kaydedildi")
+				} else {
+					_, err := clt.InsertOne(context.TODO(), menuDB)
+					menuDB = models.MenuScrap{}
+
+					if err != nil {
+						panic(err)
 					}
-
 				}
-			})
-		})
-	})
-	for _, url := range menurl {
 
-		c.Visit(url)
+				cout++
+			}
+
+		})
+
+		d.Visit(menurl[i])
 
 	}
-
 }
 
 // belli periyotlarında yemek listesini internetten çekip mongodb'e kaydeten fonksiyon
 func tickerForScraping() {
-	ticker := time.NewTicker(10 * time.Hour)
+	ticker := time.NewTicker(5 * time.Second)
 	quit := make(chan struct{})
 	go func() {
+		fmt.Println("SCRAPER STARTED")
 		for {
 			select {
 			case <-ticker.C:
 				getYemekListesi()
+				fmt.Println("fonksiyon çalıştı")
 			case <-quit:
 				ticker.Stop()
 				return
